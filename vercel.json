@@ -1,0 +1,5 @@
+{
+  "buildCommand": "prisma generate --schema prisma/pg/schema.prisma && next build",
+  "framework": "nextjs",
+  "installCommand": "npm ci"
+}

@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: luno-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: luno
+      POSTGRES_PASSWORD: luno
+      POSTGRES_DB: luno
+    ports:
+      - "5432:5432"
+    volumes:
+      - luno_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U luno -d luno"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: luno-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://luno:luno@postgres:5432/luno?schema=public
+      NEXTAUTH_URL: http://localhost:3001
+      # AUTH_SECRET, RESEND_API_KEY, TWILIO_*, UPSTASH_* vb. değerleri için .env kullanın
+    env_file:
+      - .env
+    ports:
+      - "3001:3001"
+
+volumes:
+  luno_postgres_data:

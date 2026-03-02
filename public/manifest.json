@@ -1,0 +1,27 @@
+{
+  "name": "Luno — Anonim sosyal paylaşım",
+  "short_name": "Luno",
+  "description": "Anonim hesaplarla düşüncelerini paylaş. Kimse seni tanımaz.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f14",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "categories": ["social", "lifestyle"],
+  "lang": "tr",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/api/icons/192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/api/icons/512",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
