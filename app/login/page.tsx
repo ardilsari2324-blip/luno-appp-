@@ -10,113 +10,173 @@ import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, ArrowRight, Loader2, Languages, HelpCircle } from "lucide-react";
+import { ArrowRight, Loader2, Languages, HelpCircle } from "lucide-react";
 import { useLanguage } from "@/lib/language-context";
+import { passwordFieldSchema } from "@/lib/password";
 
-const sendOtpSchema = z.object({
-  email: z.string().email("Geçerli e-posta girin.").optional().or(z.literal("")),
-  phone: z.string().min(10, "En az 10 karakter.").optional().or(z.literal("")),
-}).refine((d) => d.email || d.phone, { message: "E-posta veya telefon girin.", path: ["email"] });
-
-const verifySchema = z.object({
-  code: z.string().length(6, "6 haneli kodu girin."),
+const signInSchema = z.object({
+  email: z.string().email("Invalid email."),
+  password: z.string().min(1, "Required."),
 });
 
-type SendOtp = z.infer<typeof sendOtpSchema>;
-type VerifyOtp = z.infer<typeof verifySchema>;
+const registerSendSchema = z
+  .object({
+    email: z.string().email("Invalid email."),
+    password: passwordFieldSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "mismatch",
+    path: ["confirmPassword"],
+  });
+
+const verifySchema = z.object({
+  code: z.string().length(6, "6 digits."),
+});
+
+type SignInForm = z.infer<typeof signInSchema>;
+type RegisterSendForm = z.infer<typeof registerSendSchema>;
+type VerifyForm = z.infer<typeof verifySchema>;
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t, locale, setLocale } = useLanguage();
   const callbackUrl = searchParams.get("callbackUrl") || "/app";
-  const [step, setStep] = useState<"send" | "verify">("send");
-  const [identifier, setIdentifier] = useState<{ email?: string; phone?: string }>({});
-  const [mode, setMode] = useState<"email" | "phone">("email");
+  const [mainTab, setMainTab] = useState<"signin" | "register">("signin");
+  const [regStep, setRegStep] = useState<"form" | "verify">("form");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
   const [showForgotInfo, setShowForgotInfo] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
   const [resending, setResending] = useState(false);
 
-  const sendForm = useForm<SendOtp>({
-    resolver: zodResolver(sendOtpSchema),
-    defaultValues: { email: "", phone: "" },
+  const signInForm = useForm<SignInForm>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: { email: "", password: "" },
   });
 
-  const verifyForm = useForm<VerifyOtp>({
+  const registerForm = useForm<RegisterSendForm>({
+    resolver: zodResolver(registerSendSchema),
+    defaultValues: { email: "", password: "", confirmPassword: "" },
+  });
+
+  const verifyForm = useForm<VerifyForm>({
     resolver: zodResolver(verifySchema),
     defaultValues: { code: "" },
   });
 
-  async function onSend(data: SendOtp) {
-    const email = mode === "email" ? data.email?.trim() || undefined : undefined;
-    const phone = mode === "phone" ? data.phone?.trim() || undefined : undefined;
-    const res = await fetch("/api/otp/send", {
+  function apiErrorMessage(json: { error?: unknown }): string {
+    const e = json.error;
+    if (typeof e === "string") return e;
+    if (e && typeof e === "object") {
+      const flat = e as Record<string, string[] | undefined>;
+      const first = Object.values(flat).flat()[0];
+      if (first) return first;
+    }
+    return t("errFailed");
+  }
+
+  async function onSignIn(data: SignInForm) {
+    const res = await signIn("credentials", {
+      email: data.email.trim(),
+      password: data.password,
+      redirect: false,
+      callbackUrl,
+    });
+    if (res?.error) {
+      signInForm.setError("root", { message: t("errInvalidCredentials") });
+      return;
+    }
+    if (res?.ok) {
+      router.push(callbackUrl);
+      router.refresh();
+    }
+  }
+
+  async function onRegisterSend(data: RegisterSendForm) {
+    const res = await fetch("/api/auth/register/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, phone }),
+      body: JSON.stringify({
+        email: data.email.trim(),
+        password: data.password,
+      }),
     });
     const json = await res.json();
     if (!res.ok) {
-      sendForm.setError("root", { message: json.error?.message || json.error || "Kod gönderilemedi." });
+      registerForm.setError("root", { message: apiErrorMessage(json) });
       return;
     }
-    setIdentifier({ email, phone });
-    setStep("verify");
+    setRegEmail(data.email.trim());
+    setRegPassword(data.password);
+    setRegStep("verify");
+    verifyForm.reset({ code: "" });
   }
 
-  async function onResendCode() {
+  async function onResendRegisterCode() {
     setResendSuccess(false);
     setResending(true);
     try {
-      const res = await fetch("/api/otp/send", {
+      const res = await fetch("/api/auth/register/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: identifier.email, phone: identifier.phone }),
+        body: JSON.stringify({ email: regEmail, password: regPassword }),
       });
       if (res.ok) setResendSuccess(true);
       else {
         const json = await res.json();
-        verifyForm.setError("root", { message: json.error || "Kod tekrar gönderilemedi." });
+        verifyForm.setError("root", { message: apiErrorMessage(json) });
       }
     } catch {
-      verifyForm.setError("root", { message: "Kod tekrar gönderilemedi." });
+      verifyForm.setError("root", { message: t("errFailed") });
     } finally {
       setResending(false);
     }
   }
 
-  async function onVerify(data: VerifyOtp) {
-    const res = await fetch("/api/otp/verify", {
+  async function onVerify(data: VerifyForm) {
+    const res = await fetch("/api/auth/register/verify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...identifier,
-        code: data.code,
-      }),
+      body: JSON.stringify({ email: regEmail, code: data.code }),
     });
     const json = await res.json();
     if (!res.ok) {
-      verifyForm.setError("root", { message: json.error || "Doğrulama başarısız." });
+      verifyForm.setError("root", { message: apiErrorMessage(json) });
       return;
     }
-    const signInResult = await signIn("otp", {
-      token: json.token,
+    const signInResult = await signIn("credentials", {
+      email: regEmail,
+      password: regPassword,
       redirect: false,
       callbackUrl,
     });
     if (signInResult?.error) {
-      verifyForm.setError("root", { message: "Oturum açılamadı." });
+      verifyForm.setError("root", { message: t("errInvalidCredentials") });
       return;
     }
     router.push(callbackUrl);
     router.refresh();
   }
 
+  function switchTab(tab: "signin" | "register") {
+    setMainTab(tab);
+    setRegStep("form");
+    setShowForgotInfo(false);
+    registerForm.reset();
+    verifyForm.reset();
+    signInForm.clearErrors("root");
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 gradient-mesh">
       <div className="w-full max-w-md">
         <div className="flex items-center justify-between mb-8">
-          <Link href="/" className="text-2xl font-extrabold bg-gradient-to-r from-primary to-violet-400 bg-clip-text text-transparent">
+          <Link
+            href="/"
+            className="text-2xl font-extrabold bg-gradient-to-r from-primary to-violet-400 bg-clip-text text-transparent"
+          >
             {t("appName")}
           </Link>
           <Button variant="ghost" size="sm" onClick={() => setLocale(locale === "tr" ? "en" : "tr")}>
@@ -125,124 +185,219 @@ function LoginForm() {
           </Button>
         </div>
         <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-xl p-6 shadow-xl glow-primary">
-          <h1 className="text-xl font-bold mb-1">
-            {step === "send" ? t("loginWelcome") : t("loginEnterCode")}
-          </h1>
-          <p className="text-sm text-muted-foreground mb-6">
-            {step === "send"
-              ? t("loginDesc")
-              : `${identifier.email || identifier.phone} ${t("loginCodeDesc")}`}
-          </p>
+          <Tabs value={mainTab} onValueChange={(v) => switchTab(v as "signin" | "register")}>
+            <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-xl mb-6">
+              <TabsTrigger value="signin" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                {t("loginTabSignIn")}
+              </TabsTrigger>
+              <TabsTrigger value="register" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                {t("loginTabRegister")}
+              </TabsTrigger>
+            </TabsList>
 
-          {step === "send" ? (
-            <form onSubmit={sendForm.handleSubmit(onSend)} className="space-y-4">
-              <Tabs value={mode} onValueChange={(v) => setMode(v as "email" | "phone")} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-xl">
-                  <TabsTrigger value="email" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    <Mail className="h-4 w-4 mr-2" />
-                    {t("email")}
-                  </TabsTrigger>
-                  <TabsTrigger value="phone" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    <Phone className="h-4 w-4 mr-2" />
-                    {t("phone")}
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent value="email" className="space-y-2 pt-4">
+            <TabsContent value="signin" className="mt-0 space-y-4">
+              <div>
+                <h1 className="text-xl font-bold mb-1">{t("loginWelcome")}</h1>
+                <p className="text-sm text-muted-foreground">{t("loginSubtitle")}</p>
+              </div>
+              <form onSubmit={signInForm.handleSubmit(onSignIn)} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("email")}</label>
                   <Input
-                    placeholder="ornek@email.com"
                     type="email"
+                    autoComplete="email"
+                    placeholder="ornek@email.com"
                     className="h-12 rounded-xl border-border bg-background/50"
-                    {...sendForm.register("email")}
+                    {...signInForm.register("email")}
                   />
-                  {sendForm.formState.errors.email && (
-                    <p className="text-sm text-destructive">{sendForm.formState.errors.email.message}</p>
+                  {signInForm.formState.errors.email && (
+                    <p className="text-sm text-destructive">{signInForm.formState.errors.email.message}</p>
                   )}
-                </TabsContent>
-                <TabsContent value="phone" className="space-y-2 pt-4">
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("password")}</label>
                   <Input
-                    placeholder="5XX XXX XX XX"
+                    type="password"
+                    autoComplete="current-password"
                     className="h-12 rounded-xl border-border bg-background/50"
-                    {...sendForm.register("phone")}
+                    {...signInForm.register("password")}
                   />
-                  {sendForm.formState.errors.phone && (
-                    <p className="text-sm text-destructive">{sendForm.formState.errors.phone.message}</p>
+                  {signInForm.formState.errors.password && (
+                    <p className="text-sm text-destructive">{signInForm.formState.errors.password.message}</p>
                   )}
-                </TabsContent>
-              </Tabs>
-              {sendForm.formState.errors.root && (
-                <p className="text-sm text-destructive">{sendForm.formState.errors.root.message}</p>
-              )}
-              <button
-                type="button"
-                onClick={() => setShowForgotInfo((v) => !v)}
-                className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-              >
-                <HelpCircle className="h-4 w-4" />
-                {t("forgotPassword")}
-              </button>
-              {showForgotInfo && (
-                <p className="text-sm text-muted-foreground rounded-xl bg-muted/50 p-3 border border-border/50">
-                  {t("forgotPasswordInfo")}
-                </p>
-              )}
-              <Button type="submit" className="w-full h-12 rounded-xl font-semibold" size="lg">
-                {t("sendCode")}
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
-            </form>
-          ) : (
-            <form onSubmit={verifyForm.handleSubmit(onVerify)} className="space-y-4">
-              <Input
-                placeholder="000000"
-                maxLength={6}
-                className="h-14 text-center text-2xl font-mono tracking-[0.5em] rounded-xl border-border bg-background/50"
-                {...verifyForm.register("code")}
-              />
-              {verifyForm.formState.errors.code && (
-                <p className="text-sm text-destructive">{verifyForm.formState.errors.code.message}</p>
-              )}
-              {verifyForm.formState.errors.root && (
-                <p className="text-sm text-destructive">{verifyForm.formState.errors.root.message}</p>
-              )}
-              {resendSuccess && (
-                <p className="text-sm text-green-600 dark:text-green-400">{t("codeSentAgain")}</p>
-              )}
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="w-full text-muted-foreground"
-                onClick={onResendCode}
-                disabled={resending}
-              >
-                {resending ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : t("resendCode")}
-              </Button>
-              <div className="flex gap-2">
-                <Button
+                </div>
+                {signInForm.formState.errors.root && (
+                  <p className="text-sm text-destructive">{signInForm.formState.errors.root.message}</p>
+                )}
+                <button
                   type="button"
-                  variant="outline"
-                  className="flex-1 h-12 rounded-xl"
-                  onClick={() => setStep("send")}
+                  onClick={() => setShowForgotInfo((v) => !v)}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
                 >
-                  {t("back")}
-                </Button>
-                <Button type="submit" className="flex-1 h-12 rounded-xl font-semibold" disabled={verifyForm.formState.isSubmitting}>
-                  {verifyForm.formState.isSubmitting ? (
+                  <HelpCircle className="h-4 w-4" />
+                  {t("forgotPassword")}
+                </button>
+                {showForgotInfo && (
+                  <p className="text-sm text-muted-foreground rounded-xl bg-muted/50 p-3 border border-border/50">
+                    {t("forgotPasswordInfo")}
+                  </p>
+                )}
+                <Button type="submit" className="w-full h-12 rounded-xl font-semibold" size="lg" disabled={signInForm.formState.isSubmitting}>
+                  {signInForm.formState.isSubmitting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    t("signIn")
+                    <>
+                      {t("signIn")}
+                      <ArrowRight className="h-4 w-4 ml-2 inline" />
+                    </>
                   )}
                 </Button>
-              </div>
-            </form>
-          )}
+              </form>
+            </TabsContent>
+
+            <TabsContent value="register" className="mt-0">
+              {regStep === "form" ? (
+                <div className="space-y-4">
+                  <div>
+                    <h1 className="text-xl font-bold mb-1">{t("loginTabRegister")}</h1>
+                    <p className="text-sm text-muted-foreground">{t("registerSubtitle")}</p>
+                  </div>
+                  <form onSubmit={registerForm.handleSubmit(onRegisterSend)} className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">{t("email")}</label>
+                      <Input
+                        type="email"
+                        autoComplete="email"
+                        placeholder="ornek@email.com"
+                        className="h-12 rounded-xl border-border bg-background/50"
+                        {...registerForm.register("email")}
+                      />
+                      {registerForm.formState.errors.email && (
+                        <p className="text-sm text-destructive">{registerForm.formState.errors.email.message}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">{t("password")}</label>
+                      <Input
+                        type="password"
+                        autoComplete="new-password"
+                        className="h-12 rounded-xl border-border bg-background/50"
+                        {...registerForm.register("password")}
+                      />
+                      {registerForm.formState.errors.password && (
+                        <p className="text-sm text-destructive">{registerForm.formState.errors.password.message}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">{t("confirmPassword")}</label>
+                      <Input
+                        type="password"
+                        autoComplete="new-password"
+                        className="h-12 rounded-xl border-border bg-background/50"
+                        {...registerForm.register("confirmPassword")}
+                      />
+                      {registerForm.formState.errors.confirmPassword && (
+                        <p className="text-sm text-destructive">
+                          {registerForm.formState.errors.confirmPassword.message === "mismatch"
+                            ? t("errPasswordMismatch")
+                            : registerForm.formState.errors.confirmPassword.message}
+                        </p>
+                      )}
+                    </div>
+                    {registerForm.formState.errors.root && (
+                      <p className="text-sm text-destructive">{registerForm.formState.errors.root.message}</p>
+                    )}
+                    <Button
+                      type="submit"
+                      className="w-full h-12 rounded-xl font-semibold"
+                      size="lg"
+                      disabled={registerForm.formState.isSubmitting}
+                    >
+                      {registerForm.formState.isSubmitting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <>
+                          {t("sendCode")}
+                          <ArrowRight className="h-4 w-4 ml-2 inline" />
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <h1 className="text-xl font-bold mb-1">{t("verifyEmailTitle")}</h1>
+                    <p className="text-sm text-muted-foreground">
+                      {regEmail} {t("loginCodeDesc")}
+                    </p>
+                  </div>
+                  <form onSubmit={verifyForm.handleSubmit(onVerify)} className="space-y-4">
+                    <Input
+                      placeholder="000000"
+                      maxLength={6}
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      className="h-14 text-center text-2xl font-mono tracking-[0.5em] rounded-xl border-border bg-background/50"
+                      {...verifyForm.register("code")}
+                    />
+                    {verifyForm.formState.errors.code && (
+                      <p className="text-sm text-destructive">{verifyForm.formState.errors.code.message}</p>
+                    )}
+                    {verifyForm.formState.errors.root && (
+                      <p className="text-sm text-destructive">{verifyForm.formState.errors.root.message}</p>
+                    )}
+                    {resendSuccess && (
+                      <p className="text-sm text-green-600 dark:text-green-400">{t("codeSentAgain")}</p>
+                    )}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="w-full text-muted-foreground"
+                      onClick={onResendRegisterCode}
+                      disabled={resending}
+                    >
+                      {resending ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : t("resendCode")}
+                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="flex-1 h-12 rounded-xl"
+                        onClick={() => {
+                          setRegStep("form");
+                          verifyForm.reset();
+                        }}
+                      >
+                        {t("back")}
+                      </Button>
+                      <Button type="submit" className="flex-1 h-12 rounded-xl font-semibold" disabled={verifyForm.formState.isSubmitting}>
+                        {verifyForm.formState.isSubmitting ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          t("createAccount")
+                        )}
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
         <p className="mt-6 text-center text-sm text-muted-foreground space-x-3">
-          <Link href="/" className="text-primary hover:underline">{t("backToHome")}</Link>
+          <Link href="/" className="text-primary hover:underline">
+            {t("backToHome")}
+          </Link>
           <span>·</span>
-          <Link href="/terms" className="text-primary hover:underline">{t("termsTitle")}</Link>
+          <Link href="/terms" className="text-primary hover:underline">
+            {t("termsTitle")}
+          </Link>
           <span>·</span>
-          <Link href="/privacy" className="text-primary hover:underline">{t("privacyTitle")}</Link>
+          <Link href="/privacy" className="text-primary hover:underline">
+            {t("privacyTitle")}
+          </Link>
         </p>
       </div>
     </div>
@@ -251,11 +406,13 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center gradient-mesh">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center gradient-mesh">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      }
+    >
       <LoginForm />
     </Suspense>
   );

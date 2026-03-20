@@ -20,6 +20,7 @@ model User {
   name               String?   // anonymousNickname ile doldurulur
   image              String?
   emailNotifications Boolean  @default(false) // E-posta bildirim tercihi
+  passwordHash       String?   // bcrypt; eski OTP-only hesaplar için null olabilir
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
@@ -76,12 +77,13 @@ model VerificationToken {
 
 // OTP doğrulama (e-posta/telefon)
 model OtpVerification {
-  id        String   @id @default(cuid())
-  email     String?
-  phone     String?
-  code      String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  email          String?
+  phone          String?
+  code           String
+  passwordHash   String? // kayıt: geçici şifre hash'i
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
 
   @@index([email])
   @@index([phone])

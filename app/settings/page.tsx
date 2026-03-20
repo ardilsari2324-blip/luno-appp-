@@ -16,6 +16,7 @@ export default async function SettingsPage() {
           user={{
             id: session.user.id!,
             name: session.user.name ?? undefined,
+            email: session.user.email ?? undefined,
           }}
         />
       </div>

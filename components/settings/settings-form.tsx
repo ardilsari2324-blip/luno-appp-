@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLanguage } from "@/lib/language-context";
 import { useTheme } from "@/lib/theme-context";
@@ -13,7 +14,7 @@ import { toastError } from "@/lib/toast";
 export function SettingsForm({
   user,
 }: {
-  user: { id: string; name?: string };
+  user: { id: string; name?: string; email?: string };
 }) {
   const router = useRouter();
   const { t, locale, setLocale, autoTranslate, setAutoTranslate } = useLanguage();
@@ -22,6 +23,9 @@ export function SettingsForm({
   const [exporting, setExporting] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(false);
   const [prefsLoading, setPrefsLoading] = useState(true);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteEmail, setDeleteEmail] = useState(user.email ?? "");
+  const [deletePassword, setDeletePassword] = useState("");
 
   useEffect(() => {
     fetch("/api/account/preferences")
@@ -30,6 +34,10 @@ export function SettingsForm({
       .catch(() => toastError(t("errFailed")))
       .finally(() => setPrefsLoading(false));
   }, [t]);
+
+  useEffect(() => {
+    if (user.email) setDeleteEmail(user.email);
+  }, [user.email]);
 
   async function handleExportData() {
     setExporting(true);
@@ -51,20 +59,45 @@ export function SettingsForm({
   }
 
   async function handleDeleteAccount() {
-    if (!confirm(t("confirmDeleteAccount"))) return;
+    if (!showDeleteConfirm) {
+      setShowDeleteConfirm(true);
+      return;
+    }
+    const email = deleteEmail.trim().toLowerCase();
+    if (user.email && email !== user.email.trim().toLowerCase()) {
+      toastError(t("deleteWrongEmail"));
+      return;
+    }
+    if (!deletePassword) {
+      toastError(t("errFailed"));
+      return;
+    }
+    if (!confirm(t("confirmDeleteAccount"))) {
+      return;
+    }
     setDeleting(true);
     try {
-      const res = await fetch("/api/account", { method: "DELETE" });
+      const res = await fetch("/api/account", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password: deletePassword }),
+      });
       if (res.ok) {
         await signOut({ callbackUrl: "/" });
         router.push("/");
         router.refresh();
       } else {
         const j = await res.json();
-        toastError(j.error || "Hesap silinemedi.");
+        const msg =
+          typeof j.error === "string"
+            ? j.error
+            : Array.isArray(Object.values(j.error || {})[0])
+              ? (Object.values(j.error || {})[0] as string[])[0]
+              : t("errFailed");
+        toastError(msg);
       }
     } catch {
-      toastError("Hesap silinemedi.");
+      toastError(t("errFailed"));
     } finally {
       setDeleting(false);
     }
@@ -93,16 +126,10 @@ export function SettingsForm({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2 flex-wrap">
-            <Button
-              variant={locale === "en" ? "default" : "outline"}
-              onClick={() => setLocale("en")}
-            >
+            <Button variant={locale === "en" ? "default" : "outline"} onClick={() => setLocale("en")}>
               English
             </Button>
-            <Button
-              variant={locale === "tr" ? "default" : "outline"}
-              onClick={() => setLocale("tr")}
-            >
+            <Button variant={locale === "tr" ? "default" : "outline"} onClick={() => setLocale("tr")}>
               Türkçe
             </Button>
           </div>
@@ -135,11 +162,7 @@ export function SettingsForm({
               <p className="font-medium">{t("autoTranslate")}</p>
               <p className="text-sm text-muted-foreground">{t("autoTranslateDesc")}</p>
             </div>
-            <Button
-              variant={autoTranslate ? "default" : "outline"}
-              size="sm"
-              onClick={() => setAutoTranslate(!autoTranslate)}
-            >
+            <Button variant={autoTranslate ? "default" : "outline"} size="sm" onClick={() => setAutoTranslate(!autoTranslate)}>
               {autoTranslate ? "ON" : "OFF"}
             </Button>
           </div>
@@ -178,19 +201,52 @@ export function SettingsForm({
       <Card className="border-destructive/50">
         <CardHeader>
           <CardTitle className="text-destructive">{t("deleteAccount")}</CardTitle>
-          <CardDescription>
-            {t("confirmDeleteAccount")}
-          </CardDescription>
+          <CardDescription>{t("confirmDeleteAccount")}</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Button
-            variant="destructive"
-            onClick={handleDeleteAccount}
-            disabled={deleting}
-          >
-            {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 mr-2" />}
-            {t("deleteAccount")}
-          </Button>
+        <CardContent className="space-y-4">
+          {showDeleteConfirm && (
+            <div className="rounded-lg border border-border p-4 space-y-3 bg-muted/30">
+              <p className="text-sm text-muted-foreground">{t("deleteAccountConfirmFields")}</p>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">{t("email")}</label>
+                <Input
+                  type="email"
+                  autoComplete="email"
+                  value={deleteEmail}
+                  onChange={(e) => setDeleteEmail(e.target.value)}
+                  className="h-10"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">{t("password")}</label>
+                <Input
+                  type="password"
+                  autoComplete="current-password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  className="h-10"
+                />
+              </div>
+            </div>
+          )}
+          <div className="flex flex-wrap gap-2">
+            {showDeleteConfirm && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeletePassword("");
+                  if (user.email) setDeleteEmail(user.email);
+                }}
+              >
+                {t("cancel")}
+              </Button>
+            )}
+            <Button variant="destructive" onClick={handleDeleteAccount} disabled={deleting}>
+              {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 mr-2" />}
+              {showDeleteConfirm ? t("deleteAccount") : t("deleteAccount")}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

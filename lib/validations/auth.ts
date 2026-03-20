@@ -1,21 +1,13 @@
 import { z } from "zod";
 
-/** E-posta veya telefon (en az biri) */
+/** Sadece e-posta (telefon girişi kapatıldı) */
 export const sendOtpSchema = z.object({
-  email: z.string().optional(),
-  phone: z.string().optional(),
-}).refine((data) => data.email || data.phone, {
-  message: "E-posta veya telefon gerekli.",
-  path: ["email"],
+  email: z.string().email("Invalid email."),
 });
 
 export const verifyOtpSchema = z.object({
-  email: z.string().optional(),
-  phone: z.string().optional(),
-  code: z.string().length(6, "Kod 6 haneli olmalı."),
-}).refine((data) => data.email || data.phone, {
-  message: "E-posta veya telefon gerekli.",
-  path: ["email"],
+  email: z.string().email(),
+  code: z.string().length(6, "Code must be 6 digits."),
 });
 
 export type SendOtpInput = z.infer<typeof sendOtpSchema>;
