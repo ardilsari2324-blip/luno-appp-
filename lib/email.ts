@@ -1,6 +1,17 @@
 import { Resend } from "resend";
 
-const FROM = process.env.RESEND_FROM_EMAIL || "Veilon <onboarding@resend.dev>";
+/** Gönderen: Vercel'de RESEND_FROM_EMAIL ile ayarlanır. Eski "Luno" ismi kalmışsa Veilon'a çeviririz. */
+function resolveFromAddress(): string {
+  const raw = process.env.RESEND_FROM_EMAIL?.trim();
+  if (!raw) return "Veilon <onboarding@resend.dev>";
+  // "Luno <...>" / "LUNO <...>" → "Veilon <...>" (domain aynı kalır: noreply@lunoapp.org)
+  if (/^luno\s*</i.test(raw)) {
+    return raw.replace(/^luno\s*</i, "Veilon <");
+  }
+  return raw;
+}
+
+const FROM = resolveFromAddress();
 
 /**
  * E-posta ile OTP kodu gönderir. RESEND_API_KEY yoksa false döner.
