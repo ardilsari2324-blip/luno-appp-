@@ -271,14 +271,14 @@ export function PostDetail({
         <h3 className="font-medium mb-2">{t("comments")}</h3>
         <form
           onSubmit={commentForm.handleSubmit((d) => commentMutation.mutate(d))}
-          className="flex gap-2 mb-4"
+          className="flex flex-col sm:flex-row gap-2 mb-4"
         >
           <Textarea
             placeholder={t("writeComment")}
             className="min-h-[60px] flex-1 resize-none"
             {...commentForm.register("content")}
           />
-          <Button type="submit" disabled={commentMutation.isPending}>
+          <Button type="submit" disabled={commentMutation.isPending} className="w-full sm:w-auto">
             {t("send")}
           </Button>
         </form>
@@ -331,7 +331,7 @@ export function PostDetail({
                   onSubmit={replyForm.handleSubmit((d) =>
                     replyMutation.mutate({ ...d, parentCommentId: c.id })
                   )}
-                  className="mt-2 ml-4 flex gap-2"
+                  className="mt-2 ml-2 sm:ml-4 flex flex-col sm:flex-row gap-2"
                 >
                   <Textarea
                     placeholder={t("writeReply")}
@@ -355,7 +355,7 @@ export function PostDetail({
               )}
 
               {c.replies && c.replies.length > 0 && (
-                <ul className="mt-2 ml-4 space-y-2 border-l-2 border-muted pl-3">
+                <ul className="mt-2 ml-2 sm:ml-4 space-y-2 border-l-2 border-muted pl-2 sm:pl-3">
                   {c.replies.map((r) => (
                     <li key={r.id}>
                       <div className="flex gap-2 items-center flex-wrap">

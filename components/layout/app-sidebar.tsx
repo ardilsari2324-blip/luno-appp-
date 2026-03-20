@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Home, MessageCircle, Settings, LogOut, Languages, Bell, Search, Shield, User } from "lucide-react";
+import { Home, MessageCircle, Settings, LogOut, Languages, Bell, Search, Shield, User, Menu } from "lucide-react";
 import { useLanguage } from "@/lib/language-context";
 
 type User = { id?: string; name?: string | null; image?: string | null };
@@ -28,11 +28,13 @@ export function AppSidebar({ user, isAdmin }: { user: User; isAdmin?: boolean })
   const dragStartYRef = useRef(0);
   const dragMaxDyRef = useRef(0);
   const ANON_PEEK_PX = 28;
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   // Route değişince paneli kapat; "ayarlar kaçıyo" hissini azaltır.
   useEffect(() => {
     setAnonOpen(false);
     setAnonDragging(false);
+    setMobileNavOpen(false);
     anonDraggingRef.current = false;
     setAnonDragY(0);
   }, [pathname]);
@@ -112,24 +114,101 @@ export function AppSidebar({ user, isAdmin }: { user: User; isAdmin?: boolean })
 
       {/* Mobile: "Anon" butonu aç/kapa paneli (dropdown değil) */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => {
-            setAnonDragging(false);
-            setAnonDragY(0);
-            setAnonOpen((v) => !v);
-          }}
-          className="w-full justify-center gap-2 h-[72px] rounded-none"
-        >
-          <Avatar className="h-8 w-8 ring-2 ring-border shrink-0">
-            <AvatarFallback className="text-xs bg-primary/20 text-primary">
-              {(user.name || "Anon")?.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <span className="truncate max-w-[60%] text-sm font-semibold">{user.name || "Anon"}</span>
-        </Button>
+        <div className="flex w-full">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => {
+              setMobileNavOpen(false);
+              setAnonDragging(false);
+              setAnonDragY(0);
+              setAnonOpen((v) => !v);
+            }}
+            className="w-1/2 justify-center gap-2 h-[72px] rounded-none"
+          >
+            <Avatar className="h-8 w-8 ring-2 ring-border shrink-0">
+              <AvatarFallback className="text-xs bg-primary/20 text-primary">
+                {(user.name || "Anon")?.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="truncate max-w-[70%] text-sm font-semibold">{user.name || "Anon"}</span>
+          </Button>
+
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => {
+              setAnonOpen(false);
+              setAnonDragging(false);
+              setAnonDragY(0);
+              setMobileNavOpen((v) => !v);
+            }}
+            className="w-1/2 justify-center gap-2 h-[72px] rounded-none"
+            aria-label="Menü"
+          >
+            <Menu className="h-5 w-5" />
+            <span className="text-sm font-semibold">Menü</span>
+          </Button>
+        </div>
       </div>
+
+      {/* Mobile nav: Akış/Ara/Bildirimler/Mesajlar/Profil/Ayarlar */}
+      {mobileNavOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30"
+          onClick={() => setMobileNavOpen(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="absolute left-0 top-0 bottom-[72px] w-64 bg-background/95 backdrop-blur border-r border-border overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 border-b border-border">
+              <p className="text-xs text-muted-foreground">{t("forYou")}</p>
+              <p className="font-bold truncate">{t("appName")}</p>
+            </div>
+            <nav className="p-3 space-y-1">
+              {nav.map(({ href, label, icon: Icon }) => {
+                const isActive = pathname === href || (href !== "/app" && pathname.startsWith(href));
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setMobileNavOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                      isActive
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                  >
+                    <Icon className="h-5 w-5 shrink-0" />
+                    {label}
+                  </Link>
+                );
+              })}
+              <div className="pt-2">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2 px-4 py-3 h-auto rounded-xl text-sm font-medium"
+                  onClick={() => setLocale(locale === "tr" ? "en" : "tr")}
+                >
+                  <Languages className="h-4 w-4" />
+                  {locale === "tr" ? "English" : "Türkçe"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2 px-4 py-3 h-auto rounded-xl text-sm font-medium text-destructive"
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                >
+                  <LogOut className="h-4 w-4" />
+                  {t("signOut")}
+                </Button>
+              </div>
+            </nav>
+          </div>
+        </div>
+      )}
 
       {/* Mini/pushable anon panel (drag handle ile kenara kayar, az bir kısmı kalır) */}
       <div className="lg:hidden fixed inset-x-0 bottom-[72px] z-50">
