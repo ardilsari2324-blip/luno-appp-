@@ -272,7 +272,8 @@ export function AppSidebar({ user, isAdmin }: { user: User; isAdmin?: boolean })
               touchAction: "none",
             }}
           >
-            <div className="h-1.5 w-12 rounded-full bg-muted-foreground/30" />
+            {/* Minimize halde görünen sürükleme şeridi: Luno lilası */}
+            <div className="h-1.5 w-12 rounded-full bg-primary/80 glow-primary" />
           </div>
 
           {/* İçerik sadece açıkken etkileşime girsin */}
