@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +20,22 @@ type User = { id?: string; name?: string | null; image?: string | null };
 export function AppSidebar({ user, isAdmin }: { user: User; isAdmin?: boolean }) {
   const pathname = usePathname();
   const { t, locale, setLocale } = useLanguage();
+  const [anonOpen, setAnonOpen] = useState(false);
+  const [anonDragging, setAnonDragging] = useState(false);
+  const [anonDragY, setAnonDragY] = useState(0);
+  const anonDraggingRef = useRef(false);
+  const anonSheetRef = useRef<HTMLDivElement | null>(null);
+  const dragStartYRef = useRef(0);
+  const dragMaxDyRef = useRef(0);
+  const ANON_PEEK_PX = 28;
+
+  // Route değişince paneli kapat; "ayarlar kaçıyo" hissini azaltır.
+  useEffect(() => {
+    setAnonOpen(false);
+    setAnonDragging(false);
+    anonDraggingRef.current = false;
+    setAnonDragY(0);
+  }, [pathname]);
   const nav = [
     { href: "/app", label: t("feed"), icon: Home },
     { href: "/app/search", label: t("search"), icon: Search },
@@ -29,7 +46,9 @@ export function AppSidebar({ user, isAdmin }: { user: User; isAdmin?: boolean })
     ...(isAdmin ? [{ href: "/admin", label: t("admin"), icon: Shield }] as const : []),
   ];
   return (
-    <aside className="w-64 border-r border-border bg-card/50 flex flex-col">
+    <>
+      {/* Desktop sidebar */}
+      <aside className="w-64 border-r border-border bg-card/50 flex flex-col">
       <div className="p-4 border-b border-border">
         <Link href="/app" className="flex items-center gap-2 group">
           <span className="text-xl font-extrabold bg-gradient-to-r from-primary to-violet-400 bg-clip-text text-transparent">
@@ -56,7 +75,7 @@ export function AppSidebar({ user, isAdmin }: { user: User; isAdmin?: boolean })
           );
         })}
       </nav>
-      <div className="p-3 border-t border-border">
+      <div className="p-3 border-t border-border hidden lg:block">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="w-full justify-start gap-3 rounded-xl h-12 px-4 hover:bg-muted">
@@ -89,6 +108,138 @@ export function AppSidebar({ user, isAdmin }: { user: User; isAdmin?: boolean })
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </aside>
+      </aside>
+
+      {/* Mobile: "Anon" butonu aç/kapa paneli (dropdown değil) */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur">
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => {
+            setAnonDragging(false);
+            setAnonDragY(0);
+            setAnonOpen((v) => !v);
+          }}
+          className="w-full justify-center gap-2 h-[72px] rounded-none"
+        >
+          <Avatar className="h-8 w-8 ring-2 ring-border shrink-0">
+            <AvatarFallback className="text-xs bg-primary/20 text-primary">
+              {(user.name || "Anon")?.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <span className="truncate max-w-[60%] text-sm font-semibold">{user.name || "Anon"}</span>
+        </Button>
+      </div>
+
+      {/* Mini/pushable anon panel (drag handle ile kenara kayar, az bir kısmı kalır) */}
+      <div className="lg:hidden fixed inset-x-0 bottom-[72px] z-50">
+        <div
+          ref={anonSheetRef}
+          className="mx-auto w-[calc(100%-24px)] rounded-2xl bg-card border border-border shadow-lg p-4 will-change-transform"
+          style={{
+            transform: anonOpen ? `translateY(${anonDragY}px)` : `translateY(calc(100% - ${ANON_PEEK_PX}px))`,
+            transition: anonDragging ? "none" : "transform 200ms ease-out",
+          }}
+          aria-hidden={!anonOpen}
+        >
+          <div
+            className="h-5 -mx-4 px-4 flex items-center justify-center cursor-grab select-none"
+            role="button"
+            aria-label="Anon paneli"
+            onClick={() => {
+              if (!anonOpen) {
+                setAnonOpen(true);
+                setAnonDragging(false);
+                setAnonDragY(0);
+              }
+            }}
+            onPointerDown={(e) => {
+              if (!anonOpen) return; // mini halde sadece tıklama ile açılır
+              setAnonDragging(true);
+              anonDraggingRef.current = true;
+              setAnonDragY(0);
+              dragStartYRef.current = e.clientY;
+
+              const h = anonSheetRef.current?.getBoundingClientRect().height ?? 240;
+              dragMaxDyRef.current = Math.max(0, h - ANON_PEEK_PX);
+
+              try {
+                (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+              } catch {}
+            }}
+            onPointerMove={(e) => {
+              if (!anonDraggingRef.current) return;
+              const dy = e.clientY - dragStartYRef.current;
+              const clamped = Math.max(0, Math.min(dy, dragMaxDyRef.current));
+              setAnonDragY(clamped);
+            }}
+            onPointerUp={(e) => {
+              if (!anonDraggingRef.current) return;
+              const dy = e.clientY - dragStartYRef.current;
+              const maxDy = dragMaxDyRef.current || 1;
+              setAnonDragging(false);
+              anonDraggingRef.current = false;
+              setAnonDragY(0);
+              setAnonOpen(dy < maxDy * 0.4); // yeterince itildiyse kapat
+            }}
+            onPointerCancel={() => {
+              if (!anonDraggingRef.current) return;
+              setAnonDragging(false);
+              anonDraggingRef.current = false;
+              setAnonDragY(0);
+              setAnonOpen(true);
+            }}
+            style={{
+              touchAction: "none",
+            }}
+          >
+            <div className="h-1.5 w-12 rounded-full bg-muted-foreground/30" />
+          </div>
+
+          {/* İçerik sadece açıkken etkileşime girsin */}
+          <div className={`pt-1 transition-opacity ${anonOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs text-muted-foreground">{t("featureAnonymous")}</p>
+                <p className="font-bold truncate">{user.name || "Anon"}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setAnonOpen(false);
+                  setAnonDragging(false);
+                  setAnonDragY(0);
+                }}
+              >
+                Kapat
+              </Button>
+            </div>
+
+            {user?.id && (
+              <div className="mt-3">
+                <Link
+                  href={`/app/profile/${user.id}`}
+                  className="inline-flex items-center justify-center w-full h-10 rounded-xl bg-primary/10 hover:bg-primary/15 text-primary font-semibold"
+                  onClick={() => setAnonOpen(false)}
+                >
+                  Profilim
+                </Link>
+              </div>
+            )}
+
+            <div className="mt-3">
+              <Link
+                href="/settings"
+                className="inline-flex items-center justify-center w-full h-10 rounded-xl bg-muted hover:bg-muted/70 text-foreground font-semibold"
+                onClick={() => setAnonOpen(false)}
+              >
+                {t("settings")}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

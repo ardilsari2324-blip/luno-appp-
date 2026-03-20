@@ -13,18 +13,16 @@ Anonim hesaplarla fikir, sorun ve sır paylaşımı yapılan Twitter/X tarzı so
 ## Kurulum
 
 ```bash
-# Bağımlılıklar (zaten yüklü)
 npm install
-
-# Ortam değişkenleri
-cp .env.example .env
-# .env içinde AUTH_SECRET ve DATABASE_URL'ü ayarlayın
-
-# Veritabanı
+cp .env.example .env   # .env yoksa; içinde AUTH_SECRET, DATABASE_URL, NEXTAUTH_URL doldur
 npm run db:generate
 npm run db:migrate
-npm run db:seed   # İsteğe bağlı: örnek veri
+npm run db:seed       # İsteğe bağlı: örnek veri
+npm run dev           # → http://localhost:3001
 ```
+
+**Tüm çalıştırma komutları:** `RUN.md`  
+**Vercel’e deploy adımları:** `DEPLOYMENT.md` veya `SENIN_YAPACAKLARIN.md`
 
 ## PostgreSQL ile çalıştırma (opsiyonel)
 

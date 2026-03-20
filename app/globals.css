@@ -98,8 +98,19 @@ button:active:not(:disabled), [role="button"]:active {
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
   }
+  /* Mobilde alt sabit bar / panel kapamasını engeller */
+  .pb-safe-mobile {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 72px);
+  }
   .pt-safe {
     padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Desktop: sadece "safe area" */
+@media (min-width: 1024px) {
+  .pb-safe-mobile {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
 
