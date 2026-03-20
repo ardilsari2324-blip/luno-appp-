@@ -48,7 +48,7 @@ export function AppSidebar({ user, isAdmin }: { user: User; isAdmin?: boolean })
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="w-64 border-r border-border bg-card/50 flex flex-col">
+      <aside className="w-64 border-r border-border bg-card/50 flex flex-col hidden lg:flex">
       <div className="p-4 border-b border-border">
         <Link href="/app" className="flex items-center gap-2 group">
           <span className="text-xl font-extrabold bg-gradient-to-r from-primary to-violet-400 bg-clip-text text-transparent">
