@@ -26,7 +26,7 @@ Forwarding    https://xxxx-xxxx.ngrok-free.app -> http://localhost:3001
 
 ### 3. Bu linki aç
 Tarayıcıda **https://...ngrok-free.app** linkini kopyalayıp aç.  
-Ngrok ilk seferde "Visit Site" butonu gösterebilir — tıkla, Luno açılır. Şifre veya IP gerekmez.
+Ngrok ilk seferde "Visit Site" butonu gösterebilir — tıkla, Veilon açılır. Şifre veya IP gerekmez.
 
 Telefonda da aynı linki açabilirsin.
 

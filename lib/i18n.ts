@@ -3,7 +3,7 @@ export type Locale = "tr" | "en";
 export const translations = {
   tr: {
     // Genel
-    appName: "Luno",
+    appName: "Veilon",
     loading: "Yükleniyor...",
     error: "Hata",
     back: "Geri",
@@ -28,7 +28,7 @@ export const translations = {
     featureMessages: "Gizli mesajlaşma",
     qrTitle: "Telefonda aç",
     qrHint: "Aynı Wi‑Fi'deyken kamerayla tara",
-    footer: "Luno — Anonim sosyal paylaşım",
+    footer: "Veilon — Anonim sosyal paylaşım",
     // Nav
     feed: "Akış",
     messages: "Mesajlar",
@@ -68,7 +68,7 @@ export const translations = {
     backToHome: "← Ana sayfaya dön",
     tryAgain: "Tekrar dene",
     forgotPassword: "Şifremi unuttum?",
-    forgotPasswordInfo: "Luno'da şifre yok. E-posta veya telefon numaranı gir, sana 6 haneli doğrulama kodu gönderelim — X ve benzeri uygulamalardaki gibi tek tıkla giriş.",
+    forgotPasswordInfo: "Veilon'da şifre yok. E-posta veya telefon numaranı gir, sana 6 haneli doğrulama kodu gönderelim — X ve benzeri uygulamalardaki gibi tek tıkla giriş.",
     resendCode: "Kod gelmedi? Yeni kod gönder",
     codeSentAgain: "Yeni kod gönderildi. Gelen kutunu veya mesajlarını kontrol et.",
     // Settings
@@ -156,7 +156,7 @@ export const translations = {
     errQrLoad: "QR kod oluşturulamadı.",
   },
   en: {
-    appName: "Luno",
+    appName: "Veilon",
     loading: "Loading...",
     error: "Error",
     back: "Back",
@@ -180,7 +180,7 @@ export const translations = {
     featureMessages: "Private messaging",
     qrTitle: "Open on phone",
     qrHint: "Scan with camera when on same Wi‑Fi",
-    footer: "Luno — Anonymous social sharing",
+    footer: "Veilon — Anonymous social sharing",
     feed: "Feed",
     messages: "Messages",
     settings: "Settings",
@@ -216,7 +216,7 @@ export const translations = {
     backToHome: "← Back to home",
     tryAgain: "Try again",
     forgotPassword: "Forgot password?",
-    forgotPasswordInfo: "Luno has no passwords. Enter your email or phone number and we'll send you a 6-digit code — one-tap sign-in like X and similar apps.",
+    forgotPasswordInfo: "Veilon has no passwords. Enter your email or phone number and we'll send you a 6-digit code — one-tap sign-in like X and similar apps.",
     resendCode: "Didn't get the code? Resend",
     codeSentAgain: "New code sent. Check your inbox or messages.",
     profile: "Profile",

@@ -1,6 +1,6 @@
-# Luno — Deployment Rehberi
+# Veilon — Deployment Rehberi
 
-Bu döküman, Luno uygulamasını production ortamına alırken izleyebileceğiniz referans bir rehberdir.
+Bu döküman, Veilon uygulamasını production ortamına alırken izleyebileceğiniz referans bir rehberdir.
 
 ---
 
@@ -18,7 +18,7 @@ Bu döküman, Luno uygulamasını production ortamına alırken izleyebileceğin
 cd "/Users/ardilsari/Desktop/my app/luno"
 git init
 git add .
-git commit -m "Initial Luno"
+git commit -m "Initial Veilon"
 git branch -M main
 # GitHub'da yeni repo oluştur (örn. luno-app), sonra:
 git remote add origin https://github.com/KULLANICI_ADIN/luno-app.git

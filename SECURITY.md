@@ -1,4 +1,4 @@
-# Luno — Güvenlik Önlemleri
+# Veilon — Güvenlik Önlemleri
 
 Bu belge, uygulamanın güvenlik ve güvenilirlik önlemlerini özetler.
 

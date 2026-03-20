@@ -52,7 +52,7 @@ export async function GET() {
     return new NextResponse(JSON.stringify(payload, null, 2), {
       headers: {
         "Content-Type": "application/json",
-        "Content-Disposition": `attachment; filename="luno-data-${new Date().toISOString().slice(0, 10)}.json"`,
+        "Content-Disposition": `attachment; filename="veilon-data-${new Date().toISOString().slice(0, 10)}.json"`,
       },
     });
   } catch (e) {

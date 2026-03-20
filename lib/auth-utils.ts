@@ -10,7 +10,7 @@ export function generateAnonymousNickname(): string {
   return `${ANON_PREFIX}${suffix}`;
 }
 
-const OTP_TOKEN_ISSUER = "luno-otp";
+const OTP_TOKEN_ISSUER = "veilon-otp";
 const OTP_TOKEN_EXP_SEC = 5 * 60; // 5 minutes
 
 /** OTP doğrulandıktan sonra istemciye verilecek tek kullanımlık JWT üretir */

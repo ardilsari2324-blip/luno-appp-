@@ -4,28 +4,28 @@ import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
   title: {
-    default: "Luno — Anonymous social sharing",
-    template: "%s | Luno",
+    default: "Veilon — Anonymous social sharing",
+    template: "%s | Veilon",
   },
   description:
     "Share thoughts anonymously. Nobody knows who you are. Sign in securely with email or phone.",
-  applicationName: "Luno",
+  applicationName: "Veilon",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Luno",
+    title: "Veilon",
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "Luno",
-    title: "Luno — Anonymous social sharing",
+    siteName: "Veilon",
+    title: "Veilon — Anonymous social sharing",
     description: "Share thoughts anonymously. Sign in with email or phone.",
   },
   twitter: {
     card: "summary",
-    title: "Luno — Anonymous social sharing",
+    title: "Veilon — Anonymous social sharing",
     description: "Share thoughts anonymously. Sign in with email or phone.",
   },
   robots: { index: true, follow: true },

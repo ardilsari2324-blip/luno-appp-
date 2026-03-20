@@ -1,4 +1,4 @@
-# Luno — Çalıştırma komutları
+# Veilon — Çalıştırma komutları
 
 ## Geliştirme (local)
 

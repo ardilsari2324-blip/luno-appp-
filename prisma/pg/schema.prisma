@@ -1,4 +1,4 @@
-// Luno — Postgres şeması (opsiyonel)
+// Veilon — Postgres şeması (opsiyonel)
 // Bu dosyayı Postgres ile çalıştırmak için:
 // - docker-compose up -d
 // - DATABASE_URL="postgresql://luno:luno@localhost:5432/luno?schema=public"

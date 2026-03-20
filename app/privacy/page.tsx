@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Gizlilik Politikası",
-  description: "Luno gizlilik politikası ve kişisel verilerin korunması.",
+  description: "Veilon gizlilik politikası ve kişisel verilerin korunması.",
 };
 
 export default function PrivacyPage() {
@@ -12,7 +12,7 @@ export default function PrivacyPage() {
       <header className="border-b border-border bg-card/50 sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold bg-gradient-to-r from-primary to-violet-400 bg-clip-text text-transparent">
-            Luno
+            Veilon
           </Link>
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
             ← Ana sayfa

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Luno — Çalıştır ve tarayıcıda aç
+# Veilon — Çalıştır ve tarayıcıda aç
 
 cd "$(dirname "$0")"
 PORT=3001
@@ -10,7 +10,7 @@ lsof -ti:$PORT | xargs kill -9 2>/dev/null && echo "Eski süreç durduruldu." ||
 sleep 2
 
 # Sunucuyu arka planda başlat
-echo "Luno başlatılıyor..."
+echo "Veilon başlatılıyor..."
 npm run dev &
 PID=$!
 
@@ -22,7 +22,7 @@ for i in {1..15}; do
     sleep 1
     open "http://127.0.0.1:$PORT"
     echo ""
-    echo "Luno açıldı: http://127.0.0.1:$PORT"
+    echo "Veilon açıldı: http://127.0.0.1:$PORT"
     echo "Durdurmak için: kill $PID"
     wait $PID
     exit 0

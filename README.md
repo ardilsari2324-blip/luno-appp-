@@ -1,4 +1,4 @@
-# Luno
+# Veilon
 
 Anonim hesaplarla fikir, sorun ve sır paylaşımı yapılan Twitter/X tarzı sosyal uygulama. Sistem kullanıcıya anonim nickname atar; e-posta veya telefonla OTP ile kayıt/giriş.
 

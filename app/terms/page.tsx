@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Kullanım Koşulları",
-  description: "Luno kullanım koşulları, yasak içerikler, hesap silme politikası ve yasal şartlar.",
+  description: "Veilon kullanım koşulları, yasak içerikler, hesap silme politikası ve yasal şartlar.",
 };
 
 export default function TermsPage() {
@@ -12,7 +12,7 @@ export default function TermsPage() {
       <header className="border-b border-border bg-card/50 sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold bg-gradient-to-r from-primary to-violet-400 bg-clip-text text-transparent">
-            Luno
+            Veilon
           </Link>
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
             ← Ana sayfa
@@ -27,7 +27,7 @@ export default function TermsPage() {
         <section className="space-y-6">
           <h2 className="text-lg font-semibold">1. Hizmetin kapsamı ve kabul</h2>
           <p>
-            Luno (&quot;uygulama&quot;, &quot;hizmet&quot;, &quot;biz&quot;), anonim sosyal paylaşım platformu sunar. Bu Kullanım Koşulları (&quot;Koşullar&quot;), hizmete erişiminiz ve kullanımınız için geçerlidir. Uygulamayı kullanmaya başladığınızda bu Koşulları okuduğunuzu, anladığınızı ve kabul ettiğinizi beyan etmiş sayılırsınız. Kabul etmiyorsanız hizmeti kullanmayınız.
+            Veilon (&quot;uygulama&quot;, &quot;hizmet&quot;, &quot;biz&quot;), anonim sosyal paylaşım platformu sunar. Bu Kullanım Koşulları (&quot;Koşullar&quot;), hizmete erişiminiz ve kullanımınız için geçerlidir. Uygulamayı kullanmaya başladığınızda bu Koşulları okuduğunuzu, anladığınızı ve kabul ettiğinizi beyan etmiş sayılırsınız. Kabul etmiyorsanız hizmeti kullanmayınız.
           </p>
 
           <h2 className="text-lg font-semibold">2. Hesap ve güvenlik</h2>
@@ -100,12 +100,12 @@ export default function TermsPage() {
 
           <h2 className="text-lg font-semibold">7. Fikri mülkiyet</h2>
           <p>
-            Paylaştığınız içeriğin size ait olduğunu veya paylaşım yetkiniz bulunduğunu kabul edersiniz. Luno&apos;ya, içeriğinizi hizmet kapsamında göstermek, depolamak ve işlemek için sınırlı ve devredilemez bir lisans verirsiniz. Üçüncü kişilerin telif hakkı, ticari marka veya diğer haklarını ihlal etmeyiniz.
+            Paylaştığınız içeriğin size ait olduğunu veya paylaşım yetkiniz bulunduğunu kabul edersiniz. Veilon&apos;a, içeriğinizi hizmet kapsamında göstermek, depolamak ve işlemek için sınırlı ve devredilemez bir lisans verirsiniz. Üçüncü kişilerin telif hakkı, ticari marka veya diğer haklarını ihlal etmeyiniz.
           </p>
 
           <h2 className="text-lg font-semibold">8. Sorumluluk sınırlaması</h2>
           <p>
-            Hizmet &quot;olduğu gibi&quot; sunulur. Luno, kullanıcı içeriğinin doğruluğu, yasallığı veya uygunluğu konusunda garanti vermez. Yasalara uygunluk ve içerik sorumluluğu kullanıcıya aittir. Kanunun izin verdiği ölçüde, Luno dolaylı, arızi veya cezai zararlardan sorumlu tutulamaz.
+            Hizmet &quot;olduğu gibi&quot; sunulur. Veilon, kullanıcı içeriğinin doğruluğu, yasallığı veya uygunluğu konusunda garanti vermez. Yasalara uygunluk ve içerik sorumluluğu kullanıcıya aittir. Kanunun izin verdiği ölçüde, Veilon dolaylı, arızi veya cezai zararlardan sorumlu tutulamaz.
           </p>
 
           <h2 className="text-lg font-semibold">9. Uygulanacak hukuk ve uyuşmazlık çözümü</h2>

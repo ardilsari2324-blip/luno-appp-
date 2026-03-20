@@ -54,7 +54,7 @@ export function PostCard({ post, currentUserId }: { post: Post; currentUserId?: 
     e.preventDefault();
     e.stopPropagation();
     const url = `${typeof window !== "undefined" ? window.location.origin : ""}/app/post/${post.id}`;
-    const title = "Luno";
+    const title = t("appName");
     const text = post.content?.slice(0, 100) ? `${post.content.slice(0, 100)}...` : "";
     if (typeof navigator !== "undefined" && navigator.share) {
       try {

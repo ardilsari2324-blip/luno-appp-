@@ -10,7 +10,7 @@ export async function sendOtpSms(to: string, code: string): Promise<boolean> {
     const twilio = (await import("twilio")).default;
     const client = twilio(sid, token);
     await client.messages.create({
-      body: `Luno giriş kodunuz: ${code}. 10 dakika geçerlidir.`,
+      body: `Veilon giriş kodunuz: ${code}. 10 dakika geçerlidir.`,
       from,
       to: to.startsWith("+") ? to : `+90${to.replace(/\D/g, "")}`,
     });

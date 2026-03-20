@@ -1,4 +1,4 @@
-# Luno'yu yayına almak — sadece senin yapacakların
+# Veilon'u yayına almak — sadece senin yapacakların
 
 Aşağıdakileri **sırayla** yap. Ben tarayıcı açıp hesap oluşturamam, onları sen yapacaksın.
 

@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const FROM = process.env.RESEND_FROM_EMAIL || "Luno <onboarding@resend.dev>";
+const FROM = process.env.RESEND_FROM_EMAIL || "Veilon <onboarding@resend.dev>";
 
 /**
  * E-posta ile OTP kodu gönderir. RESEND_API_KEY yoksa false döner.
@@ -13,12 +13,12 @@ export async function sendOtpEmail(to: string, code: string): Promise<boolean> {
     const { error } = await resend.emails.send({
       from: FROM,
       to: [to],
-      subject: "Luno — Giriş kodunuz",
+      subject: "Veilon — Giriş kodunuz",
       html: `
         <p>Merhaba,</p>
-        <p>Luno giriş kodunuz: <strong>${code}</strong></p>
+        <p>Veilon giriş kodunuz: <strong>${code}</strong></p>
         <p>Bu kod 10 dakika geçerlidir. Kodu kimseyle paylaşmayın.</p>
-        <p>— Luno</p>
+        <p>— Veilon</p>
       `,
     });
     if (error) {

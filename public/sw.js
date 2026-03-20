@@ -1,5 +1,5 @@
 /* Basit Service Worker — offline fallback */
-const CACHE = "luno-v1";
+const CACHE = "veilon-v1";
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/", "/login", "/terms", "/privacy"])));

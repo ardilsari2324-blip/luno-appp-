@@ -228,7 +228,7 @@ export function PostDetail({
                   const url = typeof window !== "undefined" ? `${window.location.origin}/app/post/${post.id}` : "";
                   if (typeof navigator !== "undefined" && navigator.share) {
                     try {
-                      await navigator.share({ title: "Luno", text: post.content?.slice(0, 100) ?? "", url });
+                      await navigator.share({ title: t("appName"), text: post.content?.slice(0, 100) ?? "", url });
                       return;
                     } catch {}
                   }

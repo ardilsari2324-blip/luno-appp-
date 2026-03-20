@@ -4,20 +4,20 @@ const prisma = new PrismaClient();
 
 async function main() {
   const anon1 = await prisma.user.upsert({
-    where: { email: "demo@luno.app" },
+    where: { email: "demo@veilon.app" },
     update: {},
     create: {
-      email: "demo@luno.app",
+      email: "demo@veilon.app",
       anonymousNickname: "Anon_demo1",
       name: "Anon_demo1",
     },
   });
 
   const anon2 = await prisma.user.upsert({
-    where: { email: "test@luno.app" },
+    where: { email: "test@veilon.app" },
     update: {},
     create: {
-      email: "test@luno.app",
+      email: "test@veilon.app",
       anonymousNickname: "Anon_test1",
       name: "Anon_test1",
     },
