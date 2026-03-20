@@ -17,7 +17,8 @@ type LanguageContextType = {
 const LanguageContext = createContext<LanguageContextType | null>(null);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("tr");
+  /** Global default: English. Turkish when user picks it (stored in localStorage). */
+  const [locale, setLocaleState] = useState<Locale>("en");
   const [autoTranslate, setAutoTranslateState] = useState(false);
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -26,6 +27,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const at = localStorage.getItem(AUTO_TRANSLATE_KEY);
     if (at === "true") setAutoTranslateState(true);
   }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.lang = locale === "tr" ? "tr" : "en";
+  }, [locale]);
 
   const setLocale = (l: Locale) => {
     setLocaleState(l);
@@ -37,7 +43,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") localStorage.setItem(AUTO_TRANSLATE_KEY, v ? "true" : "false");
   };
 
-  const t = (key: TranslationKey) => translations[locale][key] ?? translations.tr[key] ?? key;
+  const t = (key: TranslationKey) =>
+    translations[locale][key] ?? translations.en[key] ?? translations.tr[key] ?? key;
 
   return (
     <LanguageContext.Provider value={{ locale, setLocale, autoTranslate, setAutoTranslate, t }}>

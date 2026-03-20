@@ -92,18 +92,18 @@ export function SettingsForm({
           <CardDescription>{t("languageDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Button
-              variant={locale === "tr" ? "default" : "outline"}
-              onClick={() => setLocale("tr")}
-            >
-              Türkçe
-            </Button>
+          <div className="flex gap-2 flex-wrap">
             <Button
               variant={locale === "en" ? "default" : "outline"}
               onClick={() => setLocale("en")}
             >
               English
+            </Button>
+            <Button
+              variant={locale === "tr" ? "default" : "outline"}
+              onClick={() => setLocale("tr")}
+            >
+              Türkçe
             </Button>
           </div>
           <div className="flex items-center justify-between rounded-lg border p-4">
@@ -127,7 +127,7 @@ export function SettingsForm({
                 }}
                 className="rounded"
               />
-              <span className="text-sm">{emailNotifications ? "Açık" : "Kapalı"}</span>
+              <span className="text-sm">{emailNotifications ? t("stateOn") : t("stateOff")}</span>
             </label>
           </div>
           <div className="flex items-center justify-between rounded-lg border p-4">

@@ -4,10 +4,11 @@ import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
   title: {
-    default: "Luno — Anonim sosyal paylaşım",
+    default: "Luno — Anonymous social sharing",
     template: "%s | Luno",
   },
-  description: "Anonim hesaplarla düşüncelerini paylaş. Kimse seni tanımaz. E-posta veya telefonla güvenle giriş yap.",
+  description:
+    "Share thoughts anonymously. Nobody knows who you are. Sign in securely with email or phone.",
   applicationName: "Luno",
   manifest: "/manifest.json",
   appleWebApp: {
@@ -17,15 +18,15 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    locale: "tr_TR",
+    locale: "en_US",
     siteName: "Luno",
-    title: "Luno — Anonim sosyal paylaşım",
-    description: "Anonim hesaplarla düşüncelerini paylaş. Kimse seni tanımaz.",
+    title: "Luno — Anonymous social sharing",
+    description: "Share thoughts anonymously. Sign in with email or phone.",
   },
   twitter: {
     card: "summary",
-    title: "Luno — Anonim sosyal paylaşım",
-    description: "Anonim hesaplarla düşüncelerini paylaş.",
+    title: "Luno — Anonymous social sharing",
+    description: "Share thoughts anonymously. Sign in with email or phone.",
   },
   robots: { index: true, follow: true },
 };
@@ -44,7 +45,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

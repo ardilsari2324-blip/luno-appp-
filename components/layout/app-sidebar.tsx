@@ -144,10 +144,10 @@ export function AppSidebar({ user, isAdmin }: { user: User; isAdmin?: boolean })
               setMobileNavOpen((v) => !v);
             }}
             className="w-1/2 justify-center gap-2 h-[72px] rounded-none"
-            aria-label="Menü"
+            aria-label={t("menu")}
           >
             <Menu className="h-5 w-5" />
-            <span className="text-sm font-semibold">Menü</span>
+            <span className="text-sm font-semibold">{t("menu")}</span>
           </Button>
         </div>
       </div>
@@ -292,7 +292,7 @@ export function AppSidebar({ user, isAdmin }: { user: User; isAdmin?: boolean })
                   setAnonDragY(0);
                 }}
               >
-                Kapat
+                {t("close")}
               </Button>
             </div>
 

@@ -1,7 +1,7 @@
 {
-  "name": "Luno — Anonim sosyal paylaşım",
+  "name": "Luno — Anonymous social sharing",
   "short_name": "Luno",
-  "description": "Anonim hesaplarla düşüncelerini paylaş. Kimse seni tanımaz.",
+  "description": "Share thoughts anonymously. Sign in with email or phone.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f0f14",
