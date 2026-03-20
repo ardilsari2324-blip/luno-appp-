@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { sendOtpEmail } from "@/lib/email";
 import { hashPassword, normalizeEmail, passwordFieldSchema } from "@/lib/password";
@@ -65,8 +66,20 @@ export async function POST(req: Request) {
     });
 
     const sent = await sendOtpEmail(email, code);
-    if (!sent && process.env.NODE_ENV === "development") {
-      console.log("[register] Resend missing — email:", email, "code:", code);
+    if (!sent) {
+      await prisma.otpVerification.deleteMany({
+        where: { email, passwordHash: { not: null } },
+      });
+      if (process.env.NODE_ENV === "development") {
+        console.log("[register] Resend failed or RESEND_API_KEY missing — email:", email, "code:", code);
+      }
+      return NextResponse.json(
+        {
+          error:
+            "E-posta gönderilemedi. Vercel’de RESEND_API_KEY ve (domain doğrulandıysa) RESEND_FROM_EMAIL ayarlı olmalı. Resend panelinden API key alın.",
+        },
+        { status: 503 }
+      );
     }
 
     return NextResponse.json({
@@ -75,6 +88,25 @@ export async function POST(req: Request) {
     });
   } catch (e) {
     console.error("register send error:", e);
-    return NextResponse.json({ error: "Could not send code." }, { status: 500 });
+    const msg =
+      e instanceof Prisma.PrismaClientKnownRequestError
+        ? `${e.code}: ${e.message}`
+        : e instanceof Error
+          ? e.message
+          : String(e);
+    console.error("[register send] detail:", msg);
+
+    const looksLikeSchema =
+      /passwordHash|column|does not exist|Unknown column/i.test(msg) ||
+      (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2022");
+
+    return NextResponse.json(
+      {
+        error: looksLikeSchema
+          ? "Veritabanı şeması güncel değil (ör. passwordHash kolonu yok). Postgres kullanıyorsanız scripts/vercel-postgres-password-columns.sql dosyasını çalıştırın veya prisma db push ile şemayı eşitleyin."
+          : "Kod kaydedilemedi veya sunucu hatası. Biraz sonra tekrar deneyin.",
+      },
+      { status: 500 }
+    );
   }
 }
