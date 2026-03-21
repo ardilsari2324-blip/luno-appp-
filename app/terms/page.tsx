@@ -22,7 +22,7 @@ export default function TermsPage() {
       <main className="max-w-3xl mx-auto px-4 py-8 prose prose-invert prose-sm max-w-none">
         <h1 className="text-2xl font-bold mb-6">Kullanım Koşulları</h1>
         <p className="text-muted-foreground mb-4">
-          Son güncelleme: Mart 2025
+          Son güncelleme: Mart 2026
         </p>
         <section className="space-y-6">
           <h2 className="text-lg font-semibold">1. Hizmetin kapsamı ve kabul</h2>
@@ -30,9 +30,15 @@ export default function TermsPage() {
             Veilon (&quot;uygulama&quot;, &quot;hizmet&quot;, &quot;biz&quot;), anonim sosyal paylaşım platformu sunar. Bu Kullanım Koşulları (&quot;Koşullar&quot;), hizmete erişiminiz ve kullanımınız için geçerlidir. Uygulamayı kullanmaya başladığınızda bu Koşulları okuduğunuzu, anladığınızı ve kabul ettiğinizi beyan etmiş sayılırsınız. Kabul etmiyorsanız hizmeti kullanmayınız.
           </p>
 
-          <h2 className="text-lg font-semibold">2. Hesap ve güvenlik</h2>
+          <h2 className="text-lg font-semibold">2. Hesap, kimlik doğrulama ve güvenlik</h2>
           <p>
-            Hizmete erişim için e-posta adresi veya telefon numarası ile tek seferlik doğrulama kodu (OTP) kullanılır. Hesap bilgilerinizi, doğrulama kodlarınızı veya erişim bilgilerinizi üçüncü kişilerle paylaşmayınız. Hesabınız üzerinden gerçekleşen tüm işlemlerden siz sorumlusunuz. Şüpheli bir durum fark ederseniz derhal bize bildirin.
+            Hizmete erişim için <strong>e-posta adresi ve şifre</strong> kullanılır. Yeni kayıtlarda e-postanıza gönderilen <strong>tek seferlik doğrulama kodu</strong> ile hesabınızı tamamlamanız gerekir. Şifrenizi unuttuysanız, giriş ekranındaki &quot;Şifremi unuttum&quot; akışı ile e-postanıza kod alıp yeni şifre belirleyebilirsiniz.
+          </p>
+          <p>
+            Şifreler sistemde tek yönlü olarak işlenmiş biçimde (hash) saklanır; düz metin olarak tutulmaz. Oturum bilgilerinizi ve şifrenizi üçüncü kişilerle paylaşmayınız. Hesabınız üzerinden gerçekleşen tüm işlemlerden siz sorumlusunuz. Şüpheli bir durum fark ederseniz derhal şifrenizi değiştirin ve bizimle iletişime geçin.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Hizmeti kullanarak, yerel yasalar gereği hizmete uygun yaşta olduğunuzu beyan edersiniz. Özellikle çocuklara yönelik içerik ve güvenlik kurallarına uygun davranmak kullanıcının sorumluluğundadır.
           </p>
 
           <h2 className="text-lg font-semibold">3. Kullanıcı içeriği ve genel yasaklar</h2>
@@ -116,6 +122,15 @@ export default function TermsPage() {
           <h2 className="text-lg font-semibold">10. Değişiklikler</h2>
           <p>
             Bu Koşullar güncellenebilir. Önemli değişiklikler uygulama üzerinden veya e-posta ile duyurulur. Değişikliklerden sonra hizmeti kullanmaya devam etmeniz, güncel Koşulları kabul ettiğiniz anlamına gelir.
+          </p>
+
+          <h2 className="text-lg font-semibold">11. İletişim</h2>
+          <p className="text-sm">
+            Hizmetle ilgili yasal veya içerik talepleri için işleten tarafından duyurulan resmi iletişim kanalları kullanılmalıdır (ör. destek e-postası veya güvenlik bildirimi için <code className="text-xs bg-muted px-1 rounded">/.well-known/security.txt</code> dosyasındaki iletişim).
+          </p>
+
+          <p className="text-xs text-muted-foreground border-t border-border pt-4 mt-6">
+            Bu metin bilgilendirme amaçlıdır ve hukuki danışmanlık yerine geçmez. Özel durumlarınız için bir avukata başvurunuz.
           </p>
         </section>
         <p className="mt-8 text-muted-foreground text-sm">
