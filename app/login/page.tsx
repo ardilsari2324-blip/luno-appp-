@@ -182,7 +182,11 @@ function LoginForm() {
     });
     const json = await res.json();
     if (!res.ok) {
-      forgotResetForm.setError("root", { message: apiErrorMessage(json) });
+      if (json.error === "NEW_PASSWORD_SAME_AS_OLD") {
+        forgotResetForm.setError("newPassword", { message: t("errNewPasswordSameAsOld") });
+      } else {
+        forgotResetForm.setError("root", { message: apiErrorMessage(json) });
+      }
       return;
     }
     const signInResult = await signIn("credentials", {

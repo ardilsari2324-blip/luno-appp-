@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { hashPassword, normalizeEmail, passwordFieldSchema } from "@/lib/password";
-import { rateLimit } from "@/lib/rate-limit";
+import { hashPassword, normalizeEmail, passwordFieldSchema, verifyPassword } from "@/lib/password";
+import { rateLimitByKey } from "@/lib/rate-limit";
 import { z } from "zod";
 
 const bodySchema = z.object({
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     const email = normalizeEmail(parsed.data.email);
     const { code, newPassword } = parsed.data;
 
-    const { ok } = rateLimit(`forgot-reset:${email}`, VERIFY_RATE_LIMIT, VERIFY_WINDOW_MS);
+    const { ok } = await rateLimitByKey(`forgot-reset:${email}`, VERIFY_RATE_LIMIT, VERIFY_WINDOW_MS);
     if (!ok) {
       return NextResponse.json(
         { error: "Too many attempts. Wait a minute." },
@@ -58,6 +58,16 @@ export async function POST(req: Request) {
         { error: "Invalid or expired code." },
         { status: 400 }
       );
+    }
+
+    if (user.passwordHash) {
+      const sameAsOld = await verifyPassword(newPassword, user.passwordHash);
+      if (sameAsOld) {
+        return NextResponse.json(
+          { error: "NEW_PASSWORD_SAME_AS_OLD" },
+          { status: 400 }
+        );
+      }
     }
 
     const passwordHash = await hashPassword(newPassword);

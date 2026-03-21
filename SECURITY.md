@@ -1,48 +1,39 @@
-# Veilon — Güvenlik Önlemleri
+# Veilon — Güvenlik özeti
 
-Bu belge, uygulamanın güvenlik ve güvenilirlik önlemlerini özetler.
+## Kimlik doğrulama
 
-## HTTP Güvenlik Başlıkları
+- Şifreler **bcrypt** ile hash’lenir; düz metin saklanmaz.
+- **NextAuth** JWT oturumu; `AUTH_SECRET` production’da güçlü ve gizli tutulmalı.
+- **Giriş denemesi:** `authorize` içinde e-posta başına dakikada sınırlı istek (`rateLimitByKey`); Upstash ile dağıtık sınır.
+- **Kayıt / şifre sıfırlama:** E-posta kodu, süre ve amaç (`purpose`: signup | password_reset) ayrımı.
+- Şifre sıfırlamada **yeni şifre = eski şifre** reddedilir.
 
-- **X-Frame-Options: DENY** — Clickjacking engeli
-- **X-Content-Type-Options: nosniff** — MIME sniffing engeli
-- **Referrer-Policy** — Referrer bilgisinin sızması sınırlı
-- **Permissions-Policy** — Kamera, mikrofon, konum varsayılan kapalı
-- **X-XSS-Protection** — Tarayıcı XSS filtresi
-- **Content-Security-Policy** — Script, style, bağlantı kaynakları kısıtlı
-- **Strict-Transport-Security** (production) — HTTPS zorunluluğu
+## Rate limit
 
-## Kimlik Doğrulama
+- `lib/rate-limit.ts`: **`rateLimitByKey`** — `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` tanımlıysa **Upstash Redis**, yoksa bellek içi (serverless’ta zayıf).
+- Production’da **Upstash eklemeniz önerilir**.
 
-- NextAuth JWT oturumu; production’da `useSecureCookies`
-- OTP tek kullanımlık; doğrulama sonrası silinir
-- OTP gönderim ve doğrulama rate limit ile korunur
+## HTTP başlıkları
 
-## Rate Limiting
+- `next.config.mjs`: CSP, HSTS (prod), `X-Frame-Options`, `Permissions-Policy`, vb.
+- Middleware ek başlıklar uygular (korunan rotalar).
 
-| Endpoint / Aksiyon | Limit |
-|--------------------|--------|
-| OTP gönder | 5 / dakika (e-posta/telefon başına) |
-| OTP doğrula | 10 / dakika (identifier başına) |
-| Çeviri API | 30 / dakika (IP başına) |
-| Gönderi oluştur | 20 / dakika (kullanıcı) |
-| Yorum | 30 / dakika (kullanıcı) |
-| Medya yükleme | 10 / dakika (kullanıcı) |
+## Veri ve sırlar
 
-## Girdi Güvenliği
+- `.env` **asla** repoya commit edilmez.
+- `DATABASE_URL`, `RESEND_API_KEY` yalnızca sunucu ortamında.
+- Vercel’de `DATABASE_URL` **Build** ortamında da tanımlı olmalı (`vercel-build` → `prisma db push`).
 
-- **Zod** ile tüm API girdileri doğrulanıyor
-- **sanitizeText** ile post ve yorum metinlerinde XSS riski azaltılıyor (script/onEvent/javascript: temizlenir)
-- Medya yüklemede **magic byte** kontrolü (sahte MIME’a karşı)
-- Dosya tipi ve boyut sınırları (ör. 25MB, sadece resim/video)
+## İçerik ve yükleme
 
-## Veri ve Hata Yanıtları
+- Metin: `sanitize` katmanı.
+- Yükleme: MIME + magic byte (görsel), boyut sınırları (`upload-security`).
 
-- API hata yanıtlarında yalnızca kullanıcıya uygun mesajlar dönülür; stack trace veya iç detay gösterilmez
-- Production’da hassas hata detayları log’ta tutulabilir, istemciye gönderilmez
+## Kontrol listesi (deploy öncesi)
 
-## Öneriler (Production)
-
-- Rate limit için **Redis/Upstash** kullanın (şu an in-memory)
-- `AUTH_SECRET` / `NEXTAUTH_SECRET` güçlü ve gizli tutulmalı
-- HTTPS zorunlu; `NEXTAUTH_URL` https ile ayarlanmalı
+- [ ] `AUTH_SECRET` en az 32 karakter, rastgele
+- [ ] `NEXTAUTH_URL` canlı domain ile eşleşiyor
+- [ ] Neon / Postgres erişimi ve yedek politikası gözden geçirildi
+- [ ] Resend domain / gönderen doğrulandı
+- [ ] (Önerilir) Upstash Redis bağlandı
+- [ ] (Önerilir) Sentry DSN production’da

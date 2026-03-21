@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { sendOtpEmail } from "@/lib/email";
 import { hashPassword, normalizeEmail, passwordFieldSchema } from "@/lib/password";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimitByKey } from "@/lib/rate-limit";
 import { z } from "zod";
 
 const registerSendSchema = z.object({
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     const email = normalizeEmail(parsed.data.email);
     const { password } = parsed.data;
 
-    const { ok } = rateLimit(`register-send:${email}`, RATE_LIMIT, WINDOW_MS);
+    const { ok } = await rateLimitByKey(`register-send:${email}`, RATE_LIMIT, WINDOW_MS);
     if (!ok) {
       return NextResponse.json(
         { error: "Too many requests. Try again in a minute." },

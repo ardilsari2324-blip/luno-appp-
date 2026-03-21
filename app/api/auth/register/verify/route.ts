@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateAnonymousNickname } from "@/lib/auth-utils";
 import { normalizeEmail } from "@/lib/password";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimitByKey } from "@/lib/rate-limit";
 import { z } from "zod";
 
 const registerVerifySchema = z.object({
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     const email = normalizeEmail(parsed.data.email);
     const { code } = parsed.data;
 
-    const { ok } = rateLimit(`register-verify:${email}`, VERIFY_RATE_LIMIT, VERIFY_WINDOW_MS);
+    const { ok } = await rateLimitByKey(`register-verify:${email}`, VERIFY_RATE_LIMIT, VERIFY_WINDOW_MS);
     if (!ok) {
       return NextResponse.json(
         { error: "Too many attempts. Wait a minute." },

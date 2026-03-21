@@ -62,6 +62,25 @@ export function rateLimit(
   return rateLimitSync(key, limit, windowMs);
 }
 
+/**
+ * Production’da Upstash Redis varsa dağıtık limit; yoksa bellek içi (serverless’ta zayıf).
+ * Auth ve hassas API uçları için bunu kullanın.
+ */
+export async function rateLimitByKey(
+  key: string,
+  limit: number,
+  windowMs: number
+): Promise<{ ok: boolean; remaining: number }> {
+  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    return redisRateLimit(key, limit, windowMs);
+  }
+  return Promise.resolve(memoryRateLimit(key, limit, windowMs));
+}
+
+export function hasRedisRateLimit(): boolean {
+  return !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+}
+
 /** Kullanıcı bazlı: dakikada max N istek. Upstash varsa Redis, yoksa in-memory. */
 export async function checkUserRateLimit(
   userId: string,

@@ -33,6 +33,9 @@ jobs:
       - name: Generate Prisma client
         run: npm run db:generate
 
+      - name: Apply Prisma migrations (SQLite)
+        run: npx prisma migrate deploy
+
       - name: Lint
         run: npm run lint
 

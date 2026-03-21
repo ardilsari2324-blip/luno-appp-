@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimitByKey } from "@/lib/rate-limit";
 
 const LIBRE_URL = "https://libretranslate.com/translate";
 const TRANSLATE_RATE_LIMIT = 30; // dakikada 30 çeviri isteği (IP başına)
@@ -60,7 +60,7 @@ function getClientId(req: Request): string {
 export async function POST(req: Request) {
   try {
     const clientId = getClientId(req);
-    const { ok } = rateLimit(`translate:${clientId}`, TRANSLATE_RATE_LIMIT, TRANSLATE_WINDOW_MS);
+    const { ok } = await rateLimitByKey(`translate:${clientId}`, TRANSLATE_RATE_LIMIT, TRANSLATE_WINDOW_MS);
     if (!ok) {
       return NextResponse.json(
         { error: "Çok fazla çeviri isteği. Lütfen bekleyin." },

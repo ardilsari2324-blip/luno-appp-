@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sendPasswordResetEmail } from "@/lib/email";
 import { normalizeEmail } from "@/lib/password";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimitByKey } from "@/lib/rate-limit";
 import { z } from "zod";
 
 const bodySchema = z.object({
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     }
     const email = normalizeEmail(parsed.data.email);
 
-    const { ok } = rateLimit(`forgot-pw:${email}`, RATE_LIMIT, WINDOW_MS);
+    const { ok } = await rateLimitByKey(`forgot-pw:${email}`, RATE_LIMIT, WINDOW_MS);
     if (!ok) {
       return NextResponse.json(
         { error: "Too many requests. Try again in a minute." },

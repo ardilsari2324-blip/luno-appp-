@@ -71,6 +71,8 @@ export const translations = {
     createAccount: "Hesap oluştur",
     verifyEmailTitle: "E-postanı doğrula",
     errPasswordMismatch: "Şifreler eşleşmiyor.",
+    errNewPasswordSameAsOld:
+      "Yeni şifre eski şifrenle aynı olamaz. Farklı bir şifre seç.",
     errInvalidCredentials: "E-posta veya şifre hatalı.",
     forgotPassword: "Şifremi unuttum?",
     forgotPasswordTitle: "Şifre sıfırlama",
@@ -236,6 +238,8 @@ export const translations = {
     createAccount: "Create account",
     verifyEmailTitle: "Verify your email",
     errPasswordMismatch: "Passwords do not match.",
+    errNewPasswordSameAsOld:
+      "Your new password can’t be the same as your old one. Choose a different password.",
     errInvalidCredentials: "Invalid email or password.",
     forgotPassword: "Forgot password?",
     forgotPasswordTitle: "Reset password",

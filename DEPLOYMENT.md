@@ -45,13 +45,17 @@ git push -u origin main
 1. Vercel'den verilen URL'i kopyala (örn. `https://luno-xxx.vercel.app`)
 2. Vercel → **Settings** → **Environment Variables** → `NEXTAUTH_URL` değerini bu URL ile güncelle
 3. **Redeploy** yap
-4. Veritabanı tablolarını oluştur (bir kere, kendi bilgisayarından):
+4. **Şema:** Proje `vercel.json` ile `npm run vercel-build` kullanıyorsa deploy sırasında `prisma db push` (Postgres şeması) çalışır — `DATABASE_URL`’in **Build** ortamında da tanımlı olduğundan emin ol.
+
+   Elle senkron için (bir kere):
 
 ```bash
 DATABASE_URL="postgresql://..." npm run db:push:pg
 ```
 
-(`DATABASE_URL` yerine Neon/Supabase connection string'ini yapıştır)
+   Eski veritabanı için kolonlar: `scripts/vercel-postgres-password-columns.sql` (Neon SQL Editor).
+
+5. **Güvenlik / operasyon:** [SECURITY.md](./SECURITY.md) kontrol listesine bak.
 
 ---
 

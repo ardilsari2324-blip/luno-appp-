@@ -15,10 +15,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         const { normalizeEmail, verifyPassword } = await import("@/lib/password");
+        const { rateLimitByKey } = await import("@/lib/rate-limit");
         const emailRaw = credentials?.email as string | undefined;
         const password = credentials?.password as string | undefined;
         if (!emailRaw || !password) return null;
         const email = normalizeEmail(emailRaw);
+        const { ok: withinLimit } = await rateLimitByKey(`login:${email}`, 20, 60_000);
+        if (!withinLimit) return null;
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user?.passwordHash) return null;
         const ok = await verifyPassword(password, user.passwordHash);
