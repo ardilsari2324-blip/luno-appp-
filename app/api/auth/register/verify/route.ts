@@ -39,6 +39,7 @@ export async function POST(req: Request) {
       where: {
         email,
         code,
+        purpose: "signup",
         passwordHash: { not: null },
         expiresAt: { gt: now },
       },
@@ -79,7 +80,7 @@ export async function POST(req: Request) {
     });
 
     await prisma.otpVerification.deleteMany({
-      where: { email, passwordHash: { not: null } },
+      where: { email, purpose: "signup", passwordHash: { not: null } },
     });
 
     return NextResponse.json({ success: true });

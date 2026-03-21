@@ -53,7 +53,7 @@ export async function POST(req: Request) {
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 
     await prisma.otpVerification.deleteMany({
-      where: { email, passwordHash: { not: null } },
+      where: { email, purpose: "signup", passwordHash: { not: null } },
     });
     await prisma.otpVerification.create({
       data: {
@@ -61,6 +61,7 @@ export async function POST(req: Request) {
         phone: null,
         code,
         passwordHash,
+        purpose: "signup",
         expiresAt,
       },
     });
@@ -68,7 +69,7 @@ export async function POST(req: Request) {
     const sent = await sendOtpEmail(email, code);
     if (!sent) {
       await prisma.otpVerification.deleteMany({
-        where: { email, passwordHash: { not: null } },
+        where: { email, purpose: "signup", passwordHash: { not: null } },
       });
       if (process.env.NODE_ENV === "development") {
         console.log("[register] Resend failed or RESEND_API_KEY missing — email:", email, "code:", code);

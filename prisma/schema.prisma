@@ -81,7 +81,8 @@ model OtpVerification {
   email          String?
   phone          String?
   code           String
-  passwordHash   String? // kayıt: geçici şifre hash'i
+  passwordHash   String? // kayıt: geçici şifre hash'i; şifre sıfırlamada null
+  purpose        String   @default("signup") // signup | password_reset
   expiresAt      DateTime
   createdAt      DateTime @default(now())
 

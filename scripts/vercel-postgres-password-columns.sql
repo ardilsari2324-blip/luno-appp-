@@ -7,3 +7,4 @@
 
 ALTER TABLE "OtpVerification" ADD COLUMN IF NOT EXISTS "passwordHash" TEXT;
 ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "passwordHash" TEXT;
+ALTER TABLE "OtpVerification" ADD COLUMN IF NOT EXISTS "purpose" TEXT NOT NULL DEFAULT 'signup';

@@ -85,6 +85,7 @@ model OtpVerification {
   phone        String?
   code         String
   passwordHash String?
+  purpose      String   @default("signup") // signup | password_reset
   expiresAt    DateTime
   createdAt    DateTime @default(now())
 

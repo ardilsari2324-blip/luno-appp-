@@ -42,3 +42,32 @@ export async function sendOtpEmail(to: string, code: string): Promise<boolean> {
     return false;
   }
 }
+
+/** Şifre sıfırlama kodu (aynı Resend yapılandırması). */
+export async function sendPasswordResetEmail(to: string, code: string): Promise<boolean> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return false;
+  try {
+    const resend = new Resend(apiKey);
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: [to],
+      subject: "Veilon — Şifre sıfırlama kodunuz",
+      html: `
+        <p>Merhaba,</p>
+        <p>Şifrenizi sıfırlamak için kodunuz: <strong>${code}</strong></p>
+        <p>Bu kod 10 dakika geçerlidir. Kodu kimseyle paylaşmayın.</p>
+        <p>Bu isteği siz yapmadıysanız bu e-postayı yok sayın.</p>
+        <p>— Veilon</p>
+      `,
+    });
+    if (error) {
+      console.error("[Resend] password reset", error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error("[Resend] password reset send error:", e);
+    return false;
+  }
+}
