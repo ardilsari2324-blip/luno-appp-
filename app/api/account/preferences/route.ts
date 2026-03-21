@@ -13,9 +13,13 @@ export async function GET() {
     }
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { emailNotifications: true },
+      select: { emailNotifications: true, passwordHash: true },
     });
-    return NextResponse.json({ emailNotifications: user?.emailNotifications ?? false });
+    return NextResponse.json({
+      emailNotifications: user?.emailNotifications ?? false,
+      /** Eski OTP-only hesaplar için false — şifre sıfırlama ile şifre belirlenebilir */
+      hasPassword: !!user?.passwordHash,
+    });
   } catch (e) {
     console.error("Preferences get error:", e);
     return NextResponse.json({ error: "Tercihler yüklenemedi." }, { status: 500 });

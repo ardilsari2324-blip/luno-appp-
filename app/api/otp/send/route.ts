@@ -3,27 +3,11 @@ import { prisma } from "@/lib/db";
 import { sendOtpSchema } from "@/lib/validations/auth";
 import { sendOtpEmail } from "@/lib/email";
 import { normalizeEmail } from "@/lib/password";
+import { rateLimitByKey } from "@/lib/rate-limit";
 
 const OTP_EXPIRY_MINUTES = 10;
 const RATE_LIMIT_COUNT = 5;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
-
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(key: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(key);
-  if (!entry) {
-    rateLimitMap.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return true;
-  }
-  if (now > entry.resetAt) {
-    rateLimitMap.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return true;
-  }
-  entry.count++;
-  return entry.count <= RATE_LIMIT_COUNT;
-}
 
 function generateCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -41,8 +25,12 @@ export async function POST(req: Request) {
       );
     }
     const email = normalizeEmail(parsed.data.email);
-    const identifier = email;
-    if (!checkRateLimit(identifier)) {
+    const { ok: withinLimit } = await rateLimitByKey(
+      `legacy-otp-send:${email}`,
+      RATE_LIMIT_COUNT,
+      RATE_LIMIT_WINDOW_MS
+    );
+    if (!withinLimit) {
       return NextResponse.json(
         { error: "Too many requests. Try again in a minute." },
         { status: 429 }
@@ -56,6 +44,7 @@ export async function POST(req: Request) {
         phone: null,
         code,
         passwordHash: null,
+        purpose: "legacy_otp",
         expiresAt,
       },
     });

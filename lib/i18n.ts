@@ -88,6 +88,9 @@ export const translations = {
     codeSentAgain: "Yeni kod gönderildi. Gelen kutunu kontrol et.",
     deleteAccountConfirmFields: "Hesabı silmek için e-posta ve şifreni doğrula.",
     deleteWrongEmail: "E-posta bu hesapla eşleşmiyor.",
+    settingsNoPasswordHint:
+      "Bu hesapta henüz şifre yok. Giriş sayfasında «Şifremi unuttum» ile e-postana kod alıp şifre oluştur; ardından hesap silme ve güvenli giriş kullanılabilir.",
+    goToLoginForPassword: "Şifre oluşturmak için giriş sayfasına git",
     email: "E-posta",
     phone: "Telefon",
     // Settings
@@ -255,6 +258,9 @@ export const translations = {
     codeSentAgain: "New code sent. Check your inbox.",
     deleteAccountConfirmFields: "Enter your email and password to confirm account deletion.",
     deleteWrongEmail: "Email does not match this account.",
+    settingsNoPasswordHint:
+      "This account has no password yet. Use «Forgot password» on the login page to get a code and set a password; then you can delete the account or sign in securely.",
+    goToLoginForPassword: "Go to login to set a password",
     email: "Email",
     phone: "Phone",
     profile: "Profile",

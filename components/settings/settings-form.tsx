@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,8 @@ export function SettingsForm({
   const [exporting, setExporting] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(false);
   const [prefsLoading, setPrefsLoading] = useState(true);
+  /** null = henüz yüklenmedi; API'den hasPassword gelir */
+  const [hasPassword, setHasPassword] = useState<boolean | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteEmail, setDeleteEmail] = useState(user.email ?? "");
   const [deletePassword, setDeletePassword] = useState("");
@@ -30,7 +33,10 @@ export function SettingsForm({
   useEffect(() => {
     fetch("/api/account/preferences")
       .then((r) => r.json())
-      .then((d) => setEmailNotifications(!!d.emailNotifications))
+      .then((d) => {
+        setEmailNotifications(!!d.emailNotifications);
+        setHasPassword(typeof d.hasPassword === "boolean" ? d.hasPassword : true);
+      })
       .catch(() => toastError(t("errFailed")))
       .finally(() => setPrefsLoading(false));
   }, [t]);
@@ -118,6 +124,22 @@ export function SettingsForm({
           </Button>
         </CardContent>
       </Card>
+
+      {hasPassword === false && (
+        <Card className="border-amber-500/40 bg-amber-500/5">
+          <CardHeader>
+            <CardTitle className="text-base">{t("password")}</CardTitle>
+            <CardDescription className="text-amber-900/80 dark:text-amber-100/90">
+              {t("settingsNoPasswordHint")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="default" className="rounded-xl">
+              <Link href="/login">{t("goToLoginForPassword")}</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
@@ -242,7 +264,12 @@ export function SettingsForm({
                 {t("cancel")}
               </Button>
             )}
-            <Button variant="destructive" onClick={handleDeleteAccount} disabled={deleting}>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAccount}
+              disabled={deleting || hasPassword === false}
+              title={hasPassword === false ? t("settingsNoPasswordHint") : undefined}
+            >
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 mr-2" />}
               {showDeleteConfirm ? t("deleteAccount") : t("deleteAccount")}
             </Button>

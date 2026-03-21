@@ -12,6 +12,12 @@
 
 - `lib/rate-limit.ts`: **`rateLimitByKey`** — `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` tanımlıysa **Upstash Redis**, yoksa bellek içi (serverless’ta zayıf).
 - Production’da **Upstash eklemeniz önerilir**.
+- Eski `/api/otp/send` uçları `purpose: legacy_otp` ile kaydedilir; kayıt/kayıt doğrulama akışından ayrı tutulur.
+
+## Şifresiz (eski) hesaplar
+
+- `passwordHash` yoksa giriş için **Giriş → Şifremi unuttum** ile şifre belirlenir.
+- Ayarlar API’si `hasPassword` döner; arayüzde uyarı ve girişe link gösterilir.
 
 ## HTTP başlıkları
 
