@@ -35,6 +35,11 @@
 - Metin: `sanitize` katmanı.
 - Yükleme: MIME + magic byte (görsel), boyut sınırları (`upload-security`).
 
+## Büyük platformlarla gerçekçi karşılaştırma
+
+Instagram / X seviyesi altyapı tek uygulama reposunda kopyalanmaz; ölçek, hız ve operasyon için bak: [docs/SCALE-AND-SECURITY.md](./docs/SCALE-AND-SECURITY.md).  
+Canlıda **/.well-known/security.txt** (RFC 9116) — `SECURITY_CONTACT_EMAIL` ve `NEXTAUTH_URL` ile özelleştirin.
+
 ## Kontrol listesi (deploy öncesi)
 
 - [ ] `AUTH_SECRET` en az 32 karakter, rastgele

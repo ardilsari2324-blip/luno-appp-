@@ -3,6 +3,12 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig = {
   output: process.env.VERCEL ? undefined : "standalone",
+  poweredByHeader: false,
+  reactStrictMode: true,
+  compress: true,
+  experimental: {
+    optimizePackageImports: ["lucide-react", "@radix-ui/react-tabs", "@radix-ui/react-dropdown-menu"],
+  },
   allowedDevOrigins: ["127.0.0.1", "localhost"],
   images: {
     remotePatterns: [

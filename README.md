@@ -29,7 +29,7 @@ npm run dev          # → http://localhost:3001
 | `npm run db:migrate` | SQLite migration |
 | `npm run db:push:pg` | Postgres şemasını `prisma/pg/schema` ile it (manuel) |
 
-**Ayrıntılı deploy:** [DEPLOYMENT.md](./DEPLOYMENT.md) · **Güvenlik:** [SECURITY.md](./SECURITY.md) · **Komutlar:** [RUN.md](./RUN.md)
+**Ayrıntılı deploy:** [DEPLOYMENT.md](./DEPLOYMENT.md) · **Güvenlik:** [SECURITY.md](./SECURITY.md) · **Komutlar:** [RUN.md](./RUN.md) · **Ölçek / büyük platform karşılaştırması:** [docs/SCALE-AND-SECURITY.md](./docs/SCALE-AND-SECURITY.md)
 
 ## Ortam değişkenleri
 
